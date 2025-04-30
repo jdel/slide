@@ -5,11 +5,11 @@ slide get test
 
 # Gets a key named `verysecret` in the `secret` bucket with value `hello` and client side decryption using private key seed
 
-slide get verysecret@secret --client-encryption
+slide get verysecret@secret --encrypted
 
 # Gets a key named `verysecret` in the `secret` bucket with value `hello` and client side decryption using a provided curve key seed
 
-slide get verysecret@secret --client-encryption --seed SXADDZVOUPJO7GVIVYF3JGPODPMLS2RB2J3UZUVO6ONXKVN6NEIZPRYPBQ
+slide get verysecret@secret --encrypted --seed SXADDZVOUPJO7GVIVYF3JGPODPMLS2RB2J3UZUVO6ONXKVN6NEIZPRYPBQ
 
 # Gets a key named `todo` in the `things` bucket and writes contents to the file `todo.txt`
 

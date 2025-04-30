@@ -5,11 +5,11 @@ slide set test hello
 
 # Creates a key named `verysecret` in the `secret` bucket with value `hello` and client side encryption using private key seed
 
-slide set verysecret@secret hello --client-encryption
+slide set verysecret@secret hello --encrypted
 
 # Creates a key named `verysecret` in the `secret` bucket with value `hello` and client side encryption using a provided curve key seed
 
-slide set verysecret@secret hello --client-encryption --seed SXADDZVOUPJO7GVIVYF3JGPODPMLS2RB2J3UZUVO6ONXKVN6NEIZPRYPBQ
+slide set verysecret@secret hello --encrypted --seed SXADDZVOUPJO7GVIVYF3JGPODPMLS2RB2J3UZUVO6ONXKVN6NEIZPRYPBQ
 
 # Create a key named `todo` in the `things` bucket with contents of the file `todo.txt`
 

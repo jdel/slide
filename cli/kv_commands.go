@@ -12,13 +12,14 @@ import (
 )
 
 type kvCommand struct {
-	bucket string
-	force  bool
-	key    string
-	value  string
-	crypt  bool
-	seed   string
-	nk     nkeys.KeyPair
+	bucket   string
+	force    bool
+	key      string
+	value    string
+	template string
+	crypt    bool
+	seed     string
+	nk       nkeys.KeyPair
 }
 
 func ConfigureKvCommands(app *fisk.Application) {

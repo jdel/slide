@@ -1,0 +1,6 @@
+slide
+data
+test_data
+.vscode
+# Added by goreleaser init:
+dist/

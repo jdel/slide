@@ -1,0 +1,101 @@
+project_name: jdel
+version: 2
+
+release:
+  github:
+    owner: jdel
+    name: slide
+  name_template: "Release {{ .Version }}"
+  draft: true
+  prerelease: auto
+
+builds:
+  - main: ./main.go
+    id: slide
+    binary: slide
+    ldflags:
+      [
+        "-s",
+        "-w",
+        "-X",
+        "github.com/jdel/slide/options.Version={{ .Version }}",
+      ]
+    env:
+      - GO111MODULE=on
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+      - freebsd
+    goarch:
+      - amd64
+      - arm
+      - arm64
+      - 386
+    goarm:
+      - 6
+      - 7
+    ignore:
+      - goos: freebsd
+        goarch: arm
+      - goos: freebsd
+        goarch: arm64
+      - goos: freebsd
+        goarch: 386
+      - goos: windows
+        goarch: arm
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - name_template: "slide-{{.Version}}-{{.Os}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}"
+    wrap_in_directory: true
+    formats: [zip]
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: "SHA256SUMS"
+  algorithm: sha256
+
+dockers:
+  - use: buildx
+    image_templates:
+      - "ghcr.io/jdel/slide:{{ .Tag }}-amd64"
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/amd64"
+  - use: buildx
+    image_templates:
+      - "ghcr.io/jdel/slide:{{ .Tag }}-arm64"
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/arm64"
+    goarch: arm64
+
+docker_manifests:
+  - name_template: "ghcr.io/jdel/slide:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/jdel/slide:{{ .Tag }}-amd64"
+      - "ghcr.io/jdel/slide:{{ .Tag }}-arm64"
+
+brews:
+  - name: slide
+    directory: Formula
+    repository:
+      owner: jdel
+      name: homebrew-tap
+      token: "{{ .Env.GITHUB_APP_TOKEN }}"
+    url_template: "https://github.com/jdel/slide/releases/download/{{ .Tag }}/slide-{{.Version}}-{{ .Os }}-{{ .Arch }}{{if .Arm}}{{.Arm}}{{end}}.zip"
+    homepage: "https://github.com/jdel/slide"
+    description: "Slide CLI"
+    skip_upload: auto
+    commit_author:
+      name: slide[bot]
+      email: noreply@jdel.org
+    test: |
+      system "#{bin}/slide --version"
+    install: |
+      bin.install "slide"

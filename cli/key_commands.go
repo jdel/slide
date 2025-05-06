@@ -119,6 +119,7 @@ func (c *infoCommand) toNkey(_ *fisk.ParseContext) error {
 	_, err = os.Stat(userNkey + ".nk")
 	if (err != nil && os.IsNotExist(err)) || c.force {
 		os.WriteFile(userNkey+".nk", userSeed, 0600)
+		return nil
 	}
 	return err
 }

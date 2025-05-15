@@ -2,10 +2,6 @@
 
 Slide is a personal online key-value store backed by NATS.
 
-## Foreword
-
-In light of the [recent events and controversy](https://www.cncf.io/blog/2025/04/24/protecting-nats-and-the-integrity-of-open-source-cncfs-commitment-to-the-community/) this project is in a temporary archived state.
-
 ## Objective and motivation
 
 Slide aims at providing a simple way to remotely store and retreive small chunks of data, using a regular ed25519 OpenSSH key for authentication.
@@ -39,7 +35,7 @@ servers: localhost:4222
 timeout: 10s
 
 # Using a specifig SSH key
-❯ ./slide --sshkey ~/.ssh/ed_25519 key info
+❯ ./slide --ssh-key ~/.ssh/ed_25519 key info
 userNkey: UCMXA3VWQW55NVOAV424CX77PRRNA75XT23TE3Q323GEYPBCVOMBKW55
 sshKey: /Users/user/.ssh/id_ed25519
 servers: localhost:4222

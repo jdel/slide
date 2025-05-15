@@ -2,6 +2,7 @@ package cli
 
 import (
 	"crypto/ed25519"
+	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
@@ -105,6 +106,47 @@ func (c *infoCommand) toSsh(_ *fisk.ParseContext) error {
 	return nil
 }
 
+func (c *infoCommand) toPem(_ *fisk.ParseContext) error {
+	_, rawSeed, err := nkeys.DecodeSeed([]byte(c.seed))
+	if err != nil {
+		return err
+	}
+	privateKey := ed25519.NewKeyFromSeed(rawSeed)
+	if c.insecure {
+		b, err := x509.MarshalPKCS8PrivateKey(privateKey)
+		if err != nil {
+			return err
+		}
+
+		block := &pem.Block{
+			Type:  "PRIVATE KEY",
+			Bytes: b,
+		}
+
+		fmt.Println(string(pem.EncodeToMemory(block)))
+		return nil
+	}
+
+	publicKey := privateKey.Public()
+	ed, ok := publicKey.(ed25519.PublicKey)
+	if !ok {
+		return keys.ErrWrongKeyType
+	}
+
+	b, err := x509.MarshalPKIXPublicKey(ed)
+	if err != nil {
+		return err
+	}
+
+	block := &pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: b,
+	}
+
+	fmt.Println(string(pem.EncodeToMemory(block)))
+	return nil
+}
+
 func (c *infoCommand) toNkey(_ *fisk.ParseContext) error {
 	userNkey, err := c.nk.PublicKey()
 	if err != nil {
@@ -134,10 +176,15 @@ func ConfigureKeyCommands(app *fisk.Application) {
 	info.Flag("show-sensitive", "Show sensitive data").Short('S').UnNegatableBoolVar(&c.insecure)
 	info.Flag("json", "Format to JSON instead of YAML").UnNegatableBoolVar(&c.json)
 
-	toSsh := key.Command("to-ssh", "[EXPERIMENTAL] Convert nkey Seed to OpenSSH private key").Alias("c").Action(c.toSsh)
+	toSsh := key.Command("to-ssh", "[EXPERIMENTAL] Convert nkey Seed to OpenSSH PEM").Alias("c").Action(c.toSsh)
 	toSsh.CheatFile(cheatsFs, "key to-ssh", "cheats/key/to-ssh.md")
 	toSsh.Arg("seed", "Seed to convert").Required().StringVar(&c.seed)
 	toSsh.Flag("private", "Show sensitive data").UnNegatableBoolVar(&c.insecure)
+
+	toPem := key.Command("to-pem", "[EXPERIMENTAL] Convert nkey Seed to PKCS8 PEM").Action(c.toPem)
+	toPem.CheatFile(cheatsFs, "key to-pem", "cheats/key/to-pem.md")
+	toPem.Arg("seed", "Seed to convert").Required().StringVar(&c.seed)
+	toPem.Flag("private", "Show sensitive data").UnNegatableBoolVar(&c.insecure)
 
 	toNkey := key.Command("to-nkey", "[EXPERIMENTAL] Convert OpenSSH private key to nkey file").Action(c.toNkey)
 	toNkey.CheatFile(cheatsFs, "key to-nkey", "cheats/key/to-nkey.md")

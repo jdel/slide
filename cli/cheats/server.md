@@ -3,6 +3,6 @@
 
 slide server --data-dir /tmp/slide --port 0 --ws-port 4333 --user UAFUAGK2MEB37BBA76MRKRGUS4KLDSJTBVT2U3TZZX34SLQGE4VCFVN3
 
-# Run standalone server with custom config file
+# Run standalone server with custom NATS config file
 
 slide server --config /etc/slide/slide.conf

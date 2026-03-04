@@ -14,4 +14,4 @@ clean:
 	-@rm -rf slide
 
 REDIST_LICENSES.md:
-	@go-licenses report --template redist-licenses.tpl --ignore "github.com/jdel/slide" . > REDIST_LICENSES.md
+	@go-licenses report --template redist-licenses.tpl --ignore "github.com/jdel/slide" ./... > REDIST_LICENSES.md

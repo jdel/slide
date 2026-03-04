@@ -21,7 +21,7 @@ type infoCommand struct {
 	insecure bool
 	json     bool
 	seed     string
-	force    bool
+	file     bool
 	nk       nkeys.KeyPair
 }
 
@@ -158,11 +158,17 @@ func (c *infoCommand) toNkey(_ *fisk.ParseContext) error {
 		return err
 	}
 
-	_, err = os.Stat(userNkey + ".nk")
-	if (err != nil && os.IsNotExist(err)) || c.force {
-		os.WriteFile(userNkey+".nk", userSeed, 0600)
-		return nil
+	if c.file {
+		_, err = os.Stat(userNkey + ".nk")
+		if err != nil && os.IsNotExist(err) {
+			os.WriteFile(userNkey+".nk", userSeed, 0600)
+			return nil
+		}
+	} else {
+		fmt.Println(userNkey)
+		fmt.Println(string(userSeed))
 	}
+
 	return err
 }
 
@@ -189,7 +195,7 @@ func ConfigureKeyCommands(app *fisk.Application) {
 	toNkey := key.Command("to-nkey", "[EXPERIMENTAL] Convert OpenSSH private key to nkey file").Action(c.toNkey)
 	toNkey.CheatFile(cheatsFs, "key to-nkey", "cheats/key/to-nkey.md")
 	toNkey.PreAction(c.getKeyPair)
-	toNkey.Flag("overwrite", "Overwrite existing nkey file").UnNegatableBoolVar(&c.force)
+	toNkey.Flag("file", "Output nkey to file (overwrites existing file)").UnNegatableBoolVar(&c.file)
 }
 
 func (c *infoCommand) getKeyPair(_ *fisk.ParseContext) error {

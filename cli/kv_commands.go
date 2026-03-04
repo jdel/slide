@@ -18,6 +18,7 @@ type kvCommand struct {
 	value    string
 	template string
 	crypt    bool
+	all      bool
 	seed     string
 	nk       nkeys.KeyPair
 }

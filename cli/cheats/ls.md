@@ -7,6 +7,10 @@ slide ls
 
 slide ls @todo
 
+# List all info from `todo` bucket with default template
+
+slide ls @todo --all
+
 # List all keys from `todo` bucket with template
 
 slide ls @todo --template '{{ .Key }} -> {{ .Value }}'

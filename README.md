@@ -117,6 +117,14 @@ Each bucket is backed by a NATS KV store and an underlying stream behind the sce
 
 Keep in mind that when using a SaaS provider, this amount is very likely to be limited.
 
+## TLS temrination
+
+Checkout the [docker-compose.yaml](docker-compose.yaml) file to see how to expose the websocket using Traefik.
+
+The provided Traefik configuration is incomplete and depends on your environment, certificate resolver, volumes...
+
+NATS doesn't currently support skipping TLS verification so you will need a properly signed certificate.
+
 ## Slide server and alternatives
 
 Slide server is nothig but a single node NATS server preconfigured for personal use with Slide.
@@ -144,6 +152,12 @@ If you are using a third party SaaS provider, you might want to use client side 
 This will perform private key encryption based on your private key and a random salt. This type of encryption is not performant on large amounts of data.
 
 In its current form, it only works when specifying `--ssh-key` or `--creds` directly because the ssh-agent does not expose the private key, only the signature API.
+
+## Environment variables
+
+Slide CLI can be configured using environment variables instead of command line flags. 
+
+The `--help` flag on each command will show exactly which variables can be used.
 
 ## License
 

@@ -24,9 +24,10 @@ func (c *kvCommand) listKeys(_ *fisk.ParseContext) error {
 	}
 
 	type templatedKv struct {
-		Key    string
-		Value  string
-		Bucket string
+		Key     string
+		Value   string
+		Created string
+		Bucket  string
 	}
 
 	var keys []templatedKv
@@ -39,15 +40,18 @@ func (c *kvCommand) listKeys(_ *fisk.ParseContext) error {
 	}
 
 	for k := range lister.Keys() {
-		if strings.Contains(c.template, ".Value") {
+		if strings.Contains(c.template, ".Value") ||
+			strings.Contains(c.template, ".Created") ||
+			c.all {
 			e, err := kv.Get(ctx, k)
 			if err != nil {
 				return err
 			}
 			keys = append(keys, templatedKv{
-				Key:    k,
-				Value:  string(e.Value()),
-				Bucket: c.bucket,
+				Key:     k,
+				Value:   string(e.Value()),
+				Created: e.Created().UTC().Format("2006-01-02 15:04:05.000"),
+				Bucket:  c.bucket,
 			})
 		} else {
 			keys = append(keys, templatedKv{
@@ -63,6 +67,10 @@ func (c *kvCommand) listKeys(_ *fisk.ParseContext) error {
 	slices.SortFunc(keys, func(a, b templatedKv) int {
 		return cmp.Compare(a.Key, b.Key)
 	})
+
+	if c.all {
+		c.template = "{{ .Created }}> {{ .Key }}: {{ .Value }}"
+	}
 
 	tmpl, err := template.New("ls").Parse(`{{- range . }}` + c.template + "\n" + `{{ end -}}`)
 	if err != nil {
@@ -81,5 +89,6 @@ func configureListCommand(app *fisk.Application) {
 	ls.PreAction(c.parseAtBucket)
 	ls.PreAction(c.getKeyPair)
 	ls.Arg("bucket", "Optional @bucket").Default("@").PlaceHolder("@bucket").StringVar(&c.key)
-	ls.Flag("template", "Templated output").Default("{{ .Key }}").StringVar(&c.template)
+	ls.Flag("all", "Outputs timestamp, key and value").Short('a').UnNegatableBoolVar(&c.all)
+	ls.Flag("template", "Templated output").Default("{{ .Key }}").Short('t').StringVar(&c.template)
 }

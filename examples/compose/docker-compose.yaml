@@ -1,0 +1,38 @@
+services:
+  traefik:
+    image: traefik:v3
+    container_name: traefik
+    restart: unless-stopped
+    volumes:
+      - ./traefik/config/:/etc/traefik/:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - 443:443/tcp
+    command:
+      - "--entrypoints.websecure.address=:443"
+      - "--global.checkNewVersion=false"
+      - "--global.sendAnonymousUsage=false"
+      - "--log.level=INFO"
+      - "--providers.docker.exposedByDefault=false"
+      - "--certificatesresolvers.letsencrypt.acme.email=you@yourdomain.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/letsencrypt.json"
+      - "--certificatesresolvers.letsencrypt.acme.tlsChallenge=true"
+    mem_limit: 300m
+
+  slide:
+    image: ghcr.io/jdel/slide:v0.0.4
+    container_name: slide
+    restart: unless-stopped
+    environment:
+      - SLIDE_SERVER_USER=UCMXA3VWQW55NVOAV424CX77PRRNA75XT23TE3Q323GEYPBCVOMBKW55
+      - SLIDE_SERVER_PORT=0
+    volumes:
+      - ./slide-data:/data/volumes/slide-data/:rw
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.slide.rule=Host(`slide.yourdomain.com`)"
+      - "traefik.http.routers.slide.entrypoints=websecure"
+      - "traefik.http.routers.slide.tls=true"
+      - "traefik.http.routers.slide.tls.certresolver=letsencrypt"
+      - "traefik.http.services.slide.loadbalancer.server.port=4333"
+    mem_limit: 300m

@@ -27,23 +27,6 @@ type serveCommand struct {
 	configFile  string
 }
 
-func ConfigureServerCommand(app *fisk.Application) {
-	c := &serveCommand{}
-	server := app.Command("server", "Run embedded NATS Server. Global flags don't apply.").Alias("run").Action(c.run)
-
-	server.Flag("host", "Host to bind to").Envar(options.EnvPrefix + "SERVER_HOST").Default("0.0.0.0").StringVar(&c.host)
-	server.Flag("port", "Port to bind to").Envar(options.EnvPrefix + "SERVER_PORT").Default("4222").IntVar(&c.port)
-	server.Flag("ws-port", "Use websocket").Envar(options.EnvPrefix + "SERVER_WS_PORT").IntVar(&c.wsPort)
-	server.Flag("data-dir", "Directory for jetstream data").Envar(options.EnvPrefix + "SERVER_DATA_DIR").Default("data").StringVar(&c.dataDir)
-	server.Flag("max-mem", "Maximum memory size").Envar(options.EnvPrefix + "SERVER_MAX_MEM").Default("100MB").BytesVar(&c.maxMem)
-	server.Flag("max-data", "Maximum storage size").Envar(options.EnvPrefix + "SERVER_MAX_DATA").Default("100MB").BytesVar(&c.maxStorage)
-	server.Flag("cipher-key", "Jetstream encryption cipher key").Envar(options.EnvPrefix + "SERVER_CIPHER_KEY").StringVar(&c.cipherKey)
-	server.Flag("cipher", "Jetstream encryption mode, disabled unless a cipher-key is provided").Envar(options.EnvPrefix+"SERVER_CIPHER").Default("aes").EnumVar(&c.cipher, "aes", "chacha")
-	server.Flag("multi-tenant", "Separate each user in their own account").Envar(options.EnvPrefix + "SERVER_MULTI_TENANT").UnNegatableBoolVar(&c.multiTenant)
-	server.Flag("user", "User NKey").Envar(options.EnvPrefix + "SERVER_USER").StringsVar(&c.users)
-	server.Flag("config", "Optional config file").Envar(options.EnvPrefix + "SERVER_CONFIG").StringVar(&c.configFile)
-}
-
 func (c *serveCommand) run(_ *fisk.ParseContext) error {
 	var opts *server.Options
 
@@ -153,10 +136,29 @@ func (c *serveCommand) run(_ *fisk.ParseContext) error {
 						MaxBytesRequired:     false,
 					},
 				},
+				nil,
 			)
 		}
 	}
 
 	ns.WaitForShutdown()
 	return nil
+}
+
+func ConfigureServerCommand(app *fisk.Application) {
+	c := &serveCommand{}
+	server := app.Command("server", "Run embedded NATS Server. Global flags don't apply.").Alias("run").Action(c.run)
+
+	server.CheatFile(cheatsFs, "server", "cheats/server.md")
+	server.Flag("host", "Host to bind to").Envar(options.EnvPrefix + "SERVER_HOST").Default("0.0.0.0").StringVar(&c.host)
+	server.Flag("port", "Port to bind to").Envar(options.EnvPrefix + "SERVER_PORT").Default("4222").IntVar(&c.port)
+	server.Flag("ws-port", "Use websocket").Envar(options.EnvPrefix + "SERVER_WS_PORT").IntVar(&c.wsPort)
+	server.Flag("data-dir", "Directory for jetstream data").Envar(options.EnvPrefix + "SERVER_DATA_DIR").Default("data").StringVar(&c.dataDir)
+	server.Flag("max-mem", "Maximum memory size").Envar(options.EnvPrefix + "SERVER_MAX_MEM").Default("100MB").BytesVar(&c.maxMem)
+	server.Flag("max-data", "Maximum storage size").Envar(options.EnvPrefix + "SERVER_MAX_DATA").Default("100MB").BytesVar(&c.maxStorage)
+	server.Flag("cipher-key", "Jetstream encryption cipher key").Envar(options.EnvPrefix + "SERVER_CIPHER_KEY").StringVar(&c.cipherKey)
+	server.Flag("cipher", "Jetstream encryption mode, disabled unless a cipher-key is provided").Envar(options.EnvPrefix+"SERVER_CIPHER").Default("aes").EnumVar(&c.cipher, "aes", "chacha")
+	server.Flag("multi-tenant", "Separate each user in their own account").Envar(options.EnvPrefix + "SERVER_MULTI_TENANT").UnNegatableBoolVar(&c.multiTenant)
+	server.Flag("user", "User NKey").Envar(options.EnvPrefix + "SERVER_USER").StringsVar(&c.users)
+	server.Flag("config", "Optional config file").Envar(options.EnvPrefix + "SERVER_CONFIG").StringVar(&c.configFile)
 }

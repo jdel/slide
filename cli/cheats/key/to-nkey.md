@@ -3,10 +3,10 @@
 
 There shouldn't be any reason to do this...
 
-# Generate nkey file from OpenSSH private key
+# Outputs nkey derived from OpenSSH private key
 
 slide key to-nkey
 
-# Generate nkey file from OpenSSH private key and overwrite existing file
+# Generate nkey file from OpenSSH private key and overwrite existing file if any
 
-slide key to-nkey --overwrite
+slide key to-nkey --file
